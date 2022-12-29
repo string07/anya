@@ -52,3 +52,207 @@ Logistic Regression
 LogisticModel2<-glm(Personal.Loan ~  Income + Family + CCAvg, data=data1)
 summary(LogisticModel2)
 
+CHAD Analysis (Decision Tree)
+-----------------------------------
+install.packages("party")
+
+library(party)
+
+#creating qualitative variables using ordered function for Age,Gender,Married,Premium.payment
+data1$Age.Band<-ordered(data1$Age.Band)
+data1$Gender<-ordered(data1$Gender)
+data1$Married<-ordered(data1$Married)
+data1$Premium.payment<-ordered(data1$Premium.payment)
+head(data1)
+tail(data1)
+
+model_chaid<-ctree(Premium.payment~Age.Band+Gender+
+                     Married+
+                     Years.of.Driving.Experience+
+                     Number.of.Vehicles,
+                   data=data1)
+
+plot(model_chaid)
+
+
+CART Analysis (Decision Tree)
+-----------------------------------
+install.packages("rpart")
+install.packages("rpart.plot")
+library(rpart)
+library(rpart.plot)
+
+data2<-read.csv('insurance data.csv')
+model_cart<-rpart(Losses~Married+
+                    Vehicle.Age+
+                    Age.Band+
+                    Number.of.Vehicles,data=data1,method='anova')
+
+rpart.plot(model_cart,type=4,digits=5,fallen.leaves = TRUE)
+
+#type 5
+rpart.plot(model_cart,type=5,digits=5,fallen.leaves = TRUE)
+
+
+Market Basket
+-----------------------
+P1 = data1$Prod1
+
+P1.freq = table(P1)
+P1.freq
+
+P1.rel.freq=P1.freq/nrow(data1)
+P1.rel.freq
+
+
+P2 = data1$Prod2
+
+P2.freq = table(P2)
+P2.freq
+
+P2.rel.freq=P2.freq/nrow(data1)
+P2.rel.freq
+
+
+
+P3 = data1$Prod3
+
+P3.freq = table(P3)
+P3.freq
+
+P3.rel.freq=P3.freq/nrow(data1)
+P3.rel.freq
+
+library(arules)
+
+
+#Sample
+
+data2 <- data1[1:5000,]
+
+# Factorization of variables to get all the combinations
+
+for (i in 1:col(data2)) {
+  data2[,i]=as.factor(data2[,i])
+}
+
+basket_rules <- apriori(data2, parameter = list(sup=0.005), conf = 0.01, target='rules',minlen=2, maxlen=3)
+
+summary(basket_rules)
+
+inspect(basket_rules)
+
+inspect(head(sort(basket_rules, by='lift'),20))
+
+library(arulesViz)
+
+plot(basket_rules, method = 'grouped', control=list(k=5))
+
+-----------------------------
+Interprations
+----------------------------
+
+
+Objective -
+To identify the impact of all independent variables i.e. sound, light, layout, music, fragrance, etc
+on the customers retail experience
+
+Justification -
+Since all variables are quantitative(numerical) in nature therefore, to check the above said
+objective we will use multivariate regression model
+
+Data Analysis
+Hypothesis for multivariate linear regression model
+Null hypothesis (H0) : the overall model is not statistically significant
+Hypothesis (H1) : Overall model is statistically significant
+
+
+----------------------------
+Multivariate Linear Regression 
+----------------------------
+
+Step 1 -
+If , p<α(alpha) - we reject H0
+Here from output P = 0.0001341 less than Alpha (0.05)
+We reject , Null hypothesis (H0) and accept H1
+Therefore we can say that model is statistically is significant
+
+Step 2 -
+Hypothesis for beta ß coefficient
+H0i = All beta coefficient are not statistically significant
+H1i = At least one of the beta coefficient is statistically significant
+
+----------
+Paste Table of Summary
+-----------
+Step 3
+
+y=α+ß1.x1+ß2.x2+..++E
+
+Frequency of Visit=
+1.1378+0.1865(wall.color) - 0.223(emp.knowledge)+0.52414(moretime.spent)+E
+
+Interpretation:
+
+If employment knowledge and more time spent is constant and also they increase the wall color by 1
+unit, then frequency of visit will increase by 18.65%
+
+If again wc and more time spent constant and if we increase employee knowledge by 1 unit then
+frequency of visit will decrease by 22.3%
+
+If again wc and employee knowledge constant and if we increase moretime spent by 1 unit then
+frequency of visit will increase by 52.4%
+
+After comparing beta coefficient we conclude that more time spent in retail store is more important
+and most influencing variable followed by employee knowledge and wall color
+
+
+Step 4 -
+Multi-familiarity (multicollinearity )
+
+If there is high positive correlation between variables then we can say that multicollinearity is
+present between the correlation
+
+wall.colour emp.knowledge moretime.spent
+1.067438 1.313283 1.298247
+
+Since the vif value for all independent variables is below 5 , therefore no multicollinearity is present
+between the variables
+
+
+----------------------------
+Chad Analysis
+----------------------------
+
+Data Analysis
+
+Node3 - Customers belongs to age group A at they are married, their probability of non defaulter
+is 0.2
+
+Node 4 - Customers belongs to the age group A and they are single, their probability of non
+defaulters is more than 0.6
+
+Node 7 - Customer belongs to age group B and they are married, their probability of non
+defaulter is less than 0.2
+
+Node 8 - Customer belongs to age group B and they are Single, their probability of non defaulter
+is more than 0.2
+
+Node 10 - Customer belongs to age group C and they are married, their probability of non
+defaulter is less than 0.1
+
+Node 11 - Customer belongs to age group C and they are Single, their probability of non
+defaulter is more than Node 11
+
+
+----------------------------
+Cart Analysis
+----------------------------
+● Firstly the variable is going to be split in two branches, in one branch we have the
+customers oh age group C and in another group the customers belong to age group
+A&B
+● FUrther Age group C customers going to be classified with respect to the vehicle age in
+two groups, one group has the vehicle more than = 6 and other has vehicle less than 6
+● The average losses for the group (age band = C, vehicle age>= 6) is $175.3
+● The average losses for the age group C and vehicle <6 is $288.45
+
